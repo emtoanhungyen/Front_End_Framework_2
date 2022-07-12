@@ -16,20 +16,32 @@ function App() {
     setXPlayer(!xPlayer);
   }
 
+  const reset = () => {
+    setBoard(Array(9).fill(null));
+    setXPlayer(true);
+  }
+
   const winner = caculateWinner(board);
 
   return (
-    <Container>
-      {winner ? <h2>{winner} is win.</h2> : null}
-      <Board>
-        {board.map((item, index) => <Square handlePlay={() => handlePlay(index)} value={item} />)}
-      </Board>
-    </Container>
+    <div>
+      <Container>
+        <Board>
+          {board.map((item, index) => <Square handlePlay={() => handlePlay(index)} value={item} />)}
+        </Board>
+        {winner && (
+          <>
+            <p>{winner} is winner.</p>
+            <button onClick={() => reset()}>Reset</button>
+          </>
+        )}
+      </Container>
+    </div>
   );
 }
 
 const caculateWinner = (board) => {
-  const win = [
+  const lineWin = [
     [0, 1, 2],
     [3, 4, 5],
     [6, 7, 8],
@@ -37,11 +49,12 @@ const caculateWinner = (board) => {
     [1, 4, 7],
     [2, 5, 8],
     [0, 4, 8],
-    [2, 4, 6]
+    [2, 4, 6],
   ];
-  for (let i = 0; i < win.length; i++) {
-    const [a, b, c] = win[i];
-    if (board[a] === board[b] && board[a] === board[c]) {
+  for (let i = 0; i < lineWin.length; i++) {
+    const [a, b, c] = lineWin[i];
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+      // console.log(board[a]);
       return board[a];
     }
     return null;
