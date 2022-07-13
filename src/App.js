@@ -1,81 +1,78 @@
-import React, { useState } from 'react';
+import { useState } from 'react'
 import styled from 'styled-components';
-import Square from './components/Square';
+import Board from './components/board'
 
 function App() {
-  const [xPlayer, setXPlayer] = useState(true);
-  const [board, setBoard] = useState(Array(9).fill(null));
-  const handlePlay = (index) => {
-    const temp = board.slice()
-    if (xPlayer) {
-      temp[index] = "X";
-    } else {
-      temp[index] = "O";
+  const [board, setBoard] = useState(Array(9).fill(''))
+  const [xIsNext, setXIsNext] = useState(true);
+  const calculateWinner = (cells) => {
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6]
+    ];
+
+    for (let index = 0; index < lines.length; index++) {
+      const [a, b, c] = lines[index];
+      if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
+        return cells[a];
+      }
     }
-    setBoard(temp);
-    setXPlayer(!xPlayer);
-  }
 
-  const reset = () => {
-    setBoard(Array(9).fill(null));
-    setXPlayer(true);
-  }
-
-  const winner = caculateWinner(board);
-
-  return (
-    <div>
-      <Container>
-        <Board>
-          {board.map((item, index) => <Square handlePlay={() => handlePlay(index)} value={item} />)}
-        </Board>
-        {winner && (
-          <>
-            <p>{winner} is winner.</p>
-            <button onClick={() => reset()}>Reset</button>
-          </>
-        )}
-      </Container>
-    </div>
-  );
-}
-
-const caculateWinner = (board) => {
-  const lineWin = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  for (let i = 0; i < lineWin.length; i++) {
-    const [a, b, c] = lineWin[i];
-    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-      // console.log(board[a]);
-      return board[a];
-    }
     return null;
   }
+
+  const winner = calculateWinner(board);
+  const handleClick = (index) => {
+    const boardCopy = [...board];
+    if (winner || boardCopy[index]) return;
+
+    boardCopy[index] = xIsNext ? 'X' : 'O';
+    setBoard(boardCopy);
+    setXIsNext((xIsNext) => !xIsNext)
+  }
+
+  const handleReset = () => {
+    setBoard(Array(9).fill(null));
+    setXIsNext(true);
+  }
+  return (
+    <Game>
+      <Title>X vs O</Title>
+      <Result>{winner ? `Winnder is ${xIsNext ? "O" : "X"}` : ""}</Result>
+      <Board value={board} onClick={handleClick} />
+      <ResetButton onClick={handleReset}>Reset</ResetButton>
+    </Game>
+  )
 }
 
-const Board = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 5px;
-  margin: auto;
-  max-width: 250px;
+const Game = styled.div`
+  max-width : 500px;
+  margin : 0 auto;
 `
 
-
-const Container = styled.div`
+const Title = styled.h1`
   text-align: center;
-`;
+  padding : 30px;
+`
 
-const Text = styled.div`
-  background-color: ${props => props.theme === "Light" ? "White" : "Black"};
-`;
+const Result = styled.h3`
+  text-align : center;
+  padding-bottom: 5px;
+`
 
-export default App;
+const ResetButton = styled.button`
+  background-color: black;
+  padding: 11px 32px;
+  color : white;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: 200px;
+  margin-top: 10px;
+`
+export default App
